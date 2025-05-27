@@ -1,39 +1,28 @@
-import json
 from django.core.management.base import BaseCommand
 from octofit_tracker.models import User, Team, Activity, Leaderboard, Workout
 
 class Command(BaseCommand):
-    help = "Populate the database with test data using Django ORM"
+    help = 'Populate the database with test data'
 
     def handle(self, *args, **kwargs):
-        with open('octofit_tracker/test_data.json', 'r') as file:
-            data = json.load(file)
+        # Create test users
+        user1 = User.objects.create(email="john.doe@example.com", name="John Doe", age=25)
+        user2 = User.objects.create(email="jane.smith@example.com", name="Jane Smith", age=30)
 
-        # Populate Users
-        for user_data in data['users']:
-            User.objects.get_or_create(email=user_data['email'], defaults={
-                'name': user_data['name'],
-                'age': user_data['age']
-            })
+        # Create test teams
+        team1 = Team.objects.create(name="Team Alpha")
+        team1.members.add(user1, user2)
 
-        # Populate Teams
-        for team_data in data['teams']:
-            team, _ = Team.objects.get_or_create(name=team_data['name'])
-            members = User.objects.filter(email__in=team_data['members'])
-            team.members.set(members)
+        # Create test activities
+        Activity.objects.create(user=user1, activity_type="Running", duration=30)
+        Activity.objects.create(user=user2, activity_type="Cycling", duration=45)
 
-        # Populate Activities
-        for activity_data in data['activities']:
-            user = User.objects.get(email=activity_data['user'])
-            Activity.objects.get_or_create(user=user, activity_type=activity_data['activity_type'], duration=activity_data['duration'])
+        # Create test leaderboard entries
+        Leaderboard.objects.create(user=user1, score=100)
+        Leaderboard.objects.create(user=user2, score=150)
 
-        # Populate Leaderboard
-        for leaderboard_data in data['leaderboard']:
-            user = User.objects.get(email=leaderboard_data['user'])
-            Leaderboard.objects.get_or_create(user=user, score=leaderboard_data['score'])
+        # Create test workouts
+        Workout.objects.create(name="Push-ups", description="Do 20 push-ups")
+        Workout.objects.create(name="Sit-ups", description="Do 30 sit-ups")
 
-        # Populate Workouts
-        for workout_data in data['workouts']:
-            Workout.objects.get_or_create(name=workout_data['name'], description=workout_data['description'])
-
-        self.stdout.write(self.style.SUCCESS('Database populated successfully using Django ORM!'))
+        self.stdout.write(self.style.SUCCESS('Successfully populated the database with test data'))
