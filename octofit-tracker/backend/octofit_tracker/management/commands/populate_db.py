@@ -23,7 +23,7 @@ class Command(BaseCommand):
         # Populate Activities
         for activity_data in data['activities']:
             user = User.objects.get(email=activity_data['user'])
-            Activity.objects.get_or_create(user=user, type=activity_data['type'], duration=activity_data['duration'])
+            Activity.objects.get_or_create(user=user, activity_type=activity_data['activity_type'], duration=activity_data['duration'])
 
         # Populate Leaderboard
         for leaderboard_data in data['leaderboard']:
