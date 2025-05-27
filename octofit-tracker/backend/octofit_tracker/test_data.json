@@ -1,0 +1,21 @@
+{
+  "users": [
+    { "email": "john.doe@example.com", "name": "John Doe" },
+    { "email": "jane.smith@example.com", "name": "Jane Smith" }
+  ],
+  "teams": [
+    { "name": "Team Alpha", "members": ["john.doe@example.com", "jane.smith@example.com"] }
+  ],
+  "activities": [
+    { "user": "john.doe@example.com", "type": "Running", "duration": 30 },
+    { "user": "jane.smith@example.com", "type": "Cycling", "duration": 45 }
+  ],
+  "leaderboard": [
+    { "user": "john.doe@example.com", "score": 100 },
+    { "user": "jane.smith@example.com", "score": 120 }
+  ],
+  "workouts": [
+    { "name": "Morning Run", "description": "A quick morning run to start the day." },
+    { "name": "Evening Yoga", "description": "Relaxing yoga session in the evening." }
+  ]
+}
