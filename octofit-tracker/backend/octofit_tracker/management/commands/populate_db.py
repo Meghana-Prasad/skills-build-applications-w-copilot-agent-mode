@@ -17,8 +17,7 @@ class Command(BaseCommand):
         for team_data in data['teams']:
             team = Team.objects.create(name=team_data['name'])
             members = User.objects.filter(email__in=team_data['members'])
-            for member in members:
-                team.members.add(member)
+            team.members.set(members)
 
         # Populate Activities
         for activity_data in data['activities']:
