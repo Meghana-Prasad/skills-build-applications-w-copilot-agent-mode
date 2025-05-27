@@ -1,37 +1,37 @@
 import json
+import pymongo
 from django.core.management.base import BaseCommand
-from octofit_tracker.models import User, Team, Activity, Leaderboard, Workout
+from django.conf import settings
 
 class Command(BaseCommand):
-    help = "Populate the database with test data"
+    help = "Populate the database with test data using pymongo"
 
     def handle(self, *args, **kwargs):
+        client = pymongo.MongoClient("mongodb://localhost:27017/")
+        db = client["octofit_db"]
+
         with open('octofit_tracker/test_data.json', 'r') as file:
             data = json.load(file)
 
         # Populate Users
-        for user_data in data['users']:
-            User.objects.get_or_create(email=user_data['email'], defaults={'name': user_data['name']})
+        db.users.insert_many(data['users'])
 
         # Populate Teams
         for team_data in data['teams']:
-            members = User.objects.filter(email__in=team_data['members'])
-            team, created = Team.objects.get_or_create(name=team_data['name'])
-            team.members.set(members)
-            team.save()
+            team_data['members'] = list(db.users.find({"email": {"$in": team_data['members']}}, {"_id": 1}))
+            db.teams.insert_one(team_data)
 
         # Populate Activities
         for activity_data in data['activities']:
-            user = User.objects.get(email=activity_data['user'])
-            Activity.objects.get_or_create(user=user, activity_type=activity_data['activity_type'], duration=activity_data['duration'])
+            activity_data['user'] = db.users.find_one({"email": activity_data['user']}, {"_id": 1})
+            db.activities.insert_one(activity_data)
 
         # Populate Leaderboard
         for leaderboard_data in data['leaderboard']:
-            user = User.objects.get(email=leaderboard_data['user'])
-            Leaderboard.objects.get_or_create(user=user, score=leaderboard_data['score'])
+            leaderboard_data['user'] = db.users.find_one({"email": leaderboard_data['user']}, {"_id": 1})
+            db.leaderboard.insert_one(leaderboard_data)
 
         # Populate Workouts
-        for workout_data in data['workouts']:
-            Workout.objects.get_or_create(name=workout_data['name'], description=workout_data['description'])
+        db.workouts.insert_many(data['workouts'])
 
-        self.stdout.write(self.style.SUCCESS('Database populated successfully!'))
+        self.stdout.write(self.style.SUCCESS('Database populated successfully using pymongo!'))
